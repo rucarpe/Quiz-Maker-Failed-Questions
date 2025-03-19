@@ -1,0 +1,120 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+/* Tab styling */
+.ays-quiz-tab-content {
+    display: none;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+.ays-quiz-tab-content-active {
+    display: block;
+}
+
+.nav-tab-wrapper {
+    margin-bottom: 0;
+}
+
+/* Form styling */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.row {
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.col-sm-3, .col-sm-9, .col-sm-12 {
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+    box-sizing: border-box;
+}
+
+.col-sm-3 {
+    float: left;
+    width: 25%;
+}
+
+.col-sm-9 {
+    float: left;
+    width: 75%;
+}
+
+.col-sm-12 {
+    width: 100%;
+}
+
+/* Statistics boxes */
+.ays-quiz-fq-stats-container {
+    display: flex;
+    margin: 20px 0;
+}
+
+.ays-quiz-fq-stat-box {
+    flex: 1;
+    max-width: 200px;
+    margin-right: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.ays-quiz-fq-stat-box-title {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.ays-quiz-fq-stat-box-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0073aa;
+}
+
+/* Table styling */
+.ays-quiz-fq-failed-questions-container table {
+    margin-top: 20px;
+}
+
+/* Settings container */
+.ays-quiz-fq-settings-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.ays-quiz-fq-settings-container ul {
+    margin-left: 20px;
+}
+
+/* Help tooltip */
+.ays_help {
+    cursor: pointer;
+    font-size: 16px;
+    color: #585858;
+    margin-left: 5px;
+}
+
+/* Input fields */
+.ays-text-input {
+    width: 100%;
+    max-width: 400px;
+}
