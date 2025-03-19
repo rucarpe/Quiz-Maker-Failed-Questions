@@ -2,7 +2,7 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://example.com
+ * @link       https://rucarpe.com
  * @since      1.0.0
  *
  * @package    Quiz_Maker_Failed_Questions
@@ -138,63 +138,27 @@ class Quiz_Maker_Failed_Questions_Public {
      *
      * @since    1.0.0
      */
-    // Añade este código a tu función quiz_maker_fq_save_failed_questions en public/class-quiz-maker-failed-questions-public.php
-
-    function quiz_maker_fq_save_failed_questions() {
-        // Crear archivo de registro
-        $log_file = WP_CONTENT_DIR . '/failed-questions-debug.log';
-        
-        // Registrar llamada a la función
-        file_put_contents($log_file, "==== Function called at " . date('Y-m-d H:i:s') . " ====\n", FILE_APPEND);
-        
-        // Verificar si el usuario está conectado
-        $user_logged_in = is_user_logged_in();
-        file_put_contents($log_file, "User logged in: " . ($user_logged_in ? 'Yes' : 'No') . "\n", FILE_APPEND);
-        
-        if (!$user_logged_in) {
-            file_put_contents($log_file, "Early return: User not logged in\n\n", FILE_APPEND);
+    public function save_failed_questions() {
+        // Only process if user is logged in
+        if (!is_user_logged_in()) {
             return;
         }
         
-        // Registrar todas las variables POST (ten cuidado, podría contener datos sensibles)
-        file_put_contents($log_file, "POST keys available: " . implode(", ", array_keys($_POST)) . "\n", FILE_APPEND);
-        
-        // Verificar datos específicos
-        $has_quiz_id = isset($_POST['quiz_id']);
-        $has_questions_ids = isset($_POST['questions_ids']);
-        $has_correctness = isset($_POST['correctness']);
-        
-        file_put_contents($log_file, "Has quiz_id: " . ($has_quiz_id ? 'Yes' : 'No') . "\n", FILE_APPEND);
-        file_put_contents($log_file, "Has questions_ids: " . ($has_questions_ids ? 'Yes' : 'No') . "\n", FILE_APPEND);
-        file_put_contents($log_file, "Has correctness: " . ($has_correctness ? 'Yes' : 'No') . "\n", FILE_APPEND);
-        
-        // Verificar si es un quiz de preguntas falladas
-        $is_failed_quiz = isset($_POST['is_failed_questions_quiz']);
-        file_put_contents($log_file, "Is failed questions quiz: " . ($is_failed_quiz ? 'Yes' : 'No') . "\n", FILE_APPEND);
-        
+        // Check if this is a failed questions quiz (skip processing if it is)
+        $is_failed_quiz = isset($_POST['is_failed_questions_quiz']) && $_POST['is_failed_questions_quiz'];
         if ($is_failed_quiz) {
-            file_put_contents($log_file, "Early return: Is a failed questions quiz\n\n", FILE_APPEND);
             return;
         }
         
-        if (!$has_quiz_id || !$has_questions_ids || !$has_correctness) {
-            file_put_contents($log_file, "Early return: Missing required POST data\n\n", FILE_APPEND);
+        // Make sure we have required data
+        if (!isset($_POST['quiz_id']) || !isset($_POST['questions_ids']) || !isset($_POST['correctness'])) {
             return;
         }
         
-        // Registrar valores importantes
         $quiz_id = intval($_POST['quiz_id']);
         $questions_ids = isset($_POST['questions_ids']) ? (array)$_POST['questions_ids'] : array();
         $correctness = isset($_POST['correctness']) ? (array)$_POST['correctness'] : array();
         $user_id = get_current_user_id();
-        
-        file_put_contents($log_file, "Quiz ID: " . $quiz_id . "\n", FILE_APPEND);
-        file_put_contents($log_file, "User ID: " . $user_id . "\n", FILE_APPEND);
-        file_put_contents($log_file, "Questions IDs: " . print_r($questions_ids, true) . "\n", FILE_APPEND);
-        file_put_contents($log_file, "Correctness: " . print_r($correctness, true) . "\n", FILE_APPEND);
-        
-        // Continuar con el resto de la función...
-        // [Aquí va el código original, pero añadimos más registros]
         
         global $wpdb;
         $table_failed_questions = $wpdb->prefix . 'aysquiz_failed_questions';
@@ -203,14 +167,11 @@ class Quiz_Maker_Failed_Questions_Public {
         // Process each question
         foreach ($questions_ids as $index => $question_id) {
             if (!isset($correctness[$index])) {
-                file_put_contents($log_file, "Skipping question ID $question_id - no correctness data\n", FILE_APPEND);
                 continue;
             }
             
             $question_id = intval($question_id);
             $is_correct = intval($correctness[$index]);
-            
-            file_put_contents($log_file, "Processing question ID $question_id - Correct: " . ($is_correct ? 'Yes' : 'No') . "\n", FILE_APPEND);
             
             // Get question category
             $category_id = $wpdb->get_var($wpdb->prepare(
@@ -219,11 +180,8 @@ class Quiz_Maker_Failed_Questions_Public {
             ));
             
             if (!$category_id) {
-                file_put_contents($log_file, "Skipping question ID $question_id - no category found\n", FILE_APPEND);
                 continue;
             }
-            
-            file_put_contents($log_file, "Question $question_id category: $category_id\n", FILE_APPEND);
             
             // Check if this question is already in the failed questions table
             $existing_record = $wpdb->get_row($wpdb->prepare(
@@ -232,14 +190,11 @@ class Quiz_Maker_Failed_Questions_Public {
                 $user_id, $question_id
             ));
             
-            file_put_contents($log_file, "Existing record: " . ($existing_record ? 'Yes' : 'No') . "\n", FILE_APPEND);
-            
             if ($is_correct == 0) {
-                file_put_contents($log_file, "Question $question_id answered incorrectly\n", FILE_APPEND);
                 // Question was answered incorrectly - add to failed questions
                 if ($existing_record) {
                     // Reset consecutive correct counter
-                    $result = $wpdb->update(
+                    $wpdb->update(
                         $table_failed_questions,
                         array(
                             'consecutive_correct' => 0,
@@ -250,10 +205,9 @@ class Quiz_Maker_Failed_Questions_Public {
                             'id' => $existing_record->id
                         )
                     );
-                    file_put_contents($log_file, "Updated existing record: " . ($result ? 'Success' : 'Failed') . "\n", FILE_APPEND);
                 } else {
                     // Add new record
-                    $result = $wpdb->insert(
+                    $wpdb->insert(
                         $table_failed_questions,
                         array(
                             'user_id' => $user_id,
@@ -266,13 +220,8 @@ class Quiz_Maker_Failed_Questions_Public {
                             'last_attempt' => current_time('mysql')
                         )
                     );
-                    file_put_contents($log_file, "Inserted new record: " . ($result ? 'Success' : 'Failed') . "\n", FILE_APPEND);
-                    if (!$result) {
-                        file_put_contents($log_file, "DB Error: " . $wpdb->last_error . "\n", FILE_APPEND);
-                    }
                 }
             } else if ($existing_record) {
-                file_put_contents($log_file, "Question $question_id answered correctly\n", FILE_APPEND);
                 // Question was answered correctly
                 // Increment consecutive correct counter
                 $new_consecutive = $existing_record->consecutive_correct + 1;
@@ -281,11 +230,9 @@ class Quiz_Maker_Failed_Questions_Public {
                 $settings = get_option('quiz_maker_fq_settings', array());
                 $consecutive_needed = isset($settings['consecutive_correct_needed']) ? intval($settings['consecutive_correct_needed']) : 3;
                 
-                file_put_contents($log_file, "New consecutive: $new_consecutive / $consecutive_needed needed\n", FILE_APPEND);
-                
                 if ($new_consecutive >= $consecutive_needed) {
                     // Deactivate the question after meeting the consecutive correct threshold
-                    $result = $wpdb->update(
+                    $wpdb->update(
                         $table_failed_questions,
                         array(
                             'is_active' => 0,
@@ -295,10 +242,9 @@ class Quiz_Maker_Failed_Questions_Public {
                             'id' => $existing_record->id
                         )
                     );
-                    file_put_contents($log_file, "Deactivated question: " . ($result ? 'Success' : 'Failed') . "\n", FILE_APPEND);
                 } else {
                     // Update consecutive correct counter
-                    $result = $wpdb->update(
+                    $wpdb->update(
                         $table_failed_questions,
                         array(
                             'consecutive_correct' => $new_consecutive,
@@ -308,12 +254,9 @@ class Quiz_Maker_Failed_Questions_Public {
                             'id' => $existing_record->id
                         )
                     );
-                    file_put_contents($log_file, "Updated consecutive counter: " . ($result ? 'Success' : 'Failed') . "\n", FILE_APPEND);
                 }
             }
         }
-        
-        file_put_contents($log_file, "Function completed successfully\n\n", FILE_APPEND);
     }
 
     /**
@@ -601,14 +544,6 @@ class Quiz_Maker_Failed_Questions_Public {
         $questions_ids = isset($results['questions_ids']) ? $results['questions_ids'] : array();
         $correctness = isset($results['correctness']) ? $results['correctness'] : array();
         
-        global $wpdb;
-        $table_failed_questions = $wpdb->prefix . 'aysquiz_failed_questions';
-        
-        // Get settings
-        $settings = get_option('quiz_maker_fq_settings', array());
-        $consecutive_needed = isset($settings['consecutive_correct_needed']) ? intval($settings['consecutive_correct_needed']) : 3;
-        
-        // Process each question
         foreach ($questions_ids as $index => $question_id) {
             if (!isset($correctness[$index])) {
                 continue;
@@ -617,59 +552,18 @@ class Quiz_Maker_Failed_Questions_Public {
             $question_id = intval($question_id);
             $is_correct = (bool)$correctness[$index];
             
-            // Get the current record
-            $record = $wpdb->get_row($wpdb->prepare(
-                "SELECT * FROM $table_failed_questions 
-                WHERE user_id = %d AND question_id = %d AND is_active = 1",
-                $user_id, $question_id
-            ));
+            // Call update_consecutive_correct for each question
+            // This way we reuse the same logic and avoid code duplication
+            $_POST['question_id'] = $question_id;
+            $_POST['is_correct'] = $is_correct ? 1 : 0;
+            $_POST['security'] = wp_create_nonce('quiz_maker_fq_update_consecutive');
             
-            if (!$record) {
-                continue;
-            }
-            
-            if ($is_correct) {
-                // Question was answered correctly
-                $new_consecutive = $record->consecutive_correct + 1;
-                
-                if ($new_consecutive >= $consecutive_needed) {
-                    // Deactivate the question after meeting the consecutive correct threshold
-                    $wpdb->update(
-                        $table_failed_questions,
-                        array(
-                            'is_active' => 0,
-                            'consecutive_correct' => $new_consecutive,
-                            'last_attempt' => current_time('mysql')
-                        ),
-                        array(
-                            'id' => $record->id
-                        )
-                    );
-                } else {
-                    // Update consecutive correct counter
-                    $wpdb->update(
-                        $table_failed_questions,
-                        array(
-                            'consecutive_correct' => $new_consecutive,
-                            'last_attempt' => current_time('mysql')
-                        ),
-                        array(
-                            'id' => $record->id
-                        )
-                    );
-                }
-            } else {
-                // Question was answered incorrectly - reset counter
-                $wpdb->update(
-                    $table_failed_questions,
-                    array(
-                        'consecutive_correct' => 0,
-                        'last_attempt' => current_time('mysql')
-                    ),
-                    array(
-                        'id' => $record->id
-                    )
-                );
+            // Use try/catch to prevent any errors from stopping the process
+            try {
+                $this->update_consecutive_correct();
+            } catch (Exception $e) {
+                // Just log the error and continue with the next question
+                error_log('Failed questions quiz error: ' . $e->getMessage());
             }
         }
     }

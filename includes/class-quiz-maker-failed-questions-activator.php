@@ -2,7 +2,7 @@
 /**
  * Fired during plugin activation.
  *
- * @link       https://example.com
+ * @link       https://rucarpe.com
  * @since      1.0.0
  *
  * @package    Quiz_Maker_Failed_Questions

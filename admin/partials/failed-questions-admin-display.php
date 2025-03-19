@@ -2,7 +2,7 @@
 /**
  * Provide a admin area view for the plugin
  *
- * @link       https://example.com
+ * @link       https://rucarpe.com
  * @since      1.0.0
  *
  * @package    Quiz_Maker_Failed_Questions
@@ -22,7 +22,7 @@ $shortcode_text = isset($settings['shortcode_text']) ? $settings['shortcode_text
     
     <div class="ays-quiz-heading-box ays-quiz-unset-float">
         <div class="ays-quiz-wordpress-user-manual-box">
-            <a href="javascript:void(0)" target="_blank"><?php echo __("View Documentation", "quiz-maker-failed-questions"); ?></a>
+            <a href="https://rucarpe.com/plugins/quiz-maker-failed-questions/docs/" target="_blank"><?php echo __("View Documentation", "quiz-maker-failed-questions"); ?></a>
         </div>
     </div>
     

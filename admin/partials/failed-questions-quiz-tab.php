@@ -2,7 +2,7 @@
 /**
  * Provides a tab for quiz edit page.
  *
- * @link       https://example.com
+ * @link       https://rucarpe.com
  * @since      1.0.0
  *
  * @package    Quiz_Maker_Failed_Questions

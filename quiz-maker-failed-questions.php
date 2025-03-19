@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Quiz Maker - Failed Questions Addon
- * Plugin URI:        https://example.com/plugins/quiz-maker-failed-questions/
+ * Plugin URI:        https://rucarpe.com/plugins/quiz-maker-failed-questions/
  * Description:       An addon for Quiz Maker that stores failed questions and allows users to take tests with only their failed questions.
  * Version:           1.0.0
  * Author:            Rucarpe
