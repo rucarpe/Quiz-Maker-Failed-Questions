@@ -2,6 +2,7 @@
 /**
  * The core plugin class.
  *
+ * @link       https://rucarpe.com
  * @since      1.0.0
  * @package    Quiz_Maker_Failed_Questions
  * @subpackage Quiz_Maker_Failed_Questions/includes
@@ -113,7 +114,7 @@ class Quiz_Maker_Failed_Questions {
         $this->loader->add_action('wp_ajax_ays_finish_quiz', $plugin_public, 'save_failed_questions', 99);
         $this->loader->add_action('wp_ajax_nopriv_ays_finish_quiz', $plugin_public, 'save_failed_questions', 99);
 
-        // Hooks adicionales
+        // Additional hooks for quiz completion
         $this->loader->add_action('ays_after_finish_quiz', $plugin_public, 'save_failed_questions');
         $this->loader->add_action('ays_finish_quiz', $plugin_public, 'save_failed_questions');
         
