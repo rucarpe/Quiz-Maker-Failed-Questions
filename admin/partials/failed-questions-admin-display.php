@@ -13,7 +13,7 @@
 $settings = get_option('quiz_maker_fq_settings', array());
 $max_questions = isset($settings['max_questions']) ? intval($settings['max_questions']) : 20;
 $consecutive_correct_needed = isset($settings['consecutive_correct_needed']) ? intval($settings['consecutive_correct_needed']) : 3;
-$shortcode_text = isset($settings['shortcode_text']) ? $settings['shortcode_text'] : 'Test de preguntas falladas';
+$shortcode_text = isset($settings['shortcode_text']) ? esc_attr($settings['shortcode_text']) : 'Test de preguntas falladas';
 
 ?>
 
@@ -22,7 +22,7 @@ $shortcode_text = isset($settings['shortcode_text']) ? $settings['shortcode_text
     
     <div class="ays-quiz-heading-box ays-quiz-unset-float">
         <div class="ays-quiz-wordpress-user-manual-box">
-            <a href="https://rucarpe.com/plugins/quiz-maker-failed-questions/docs/" target="_blank"><?php echo __("View Documentation", "quiz-maker-failed-questions"); ?></a>
+            <a href="https://rucarpe.com/docs/quiz-maker-failed-questions" target="_blank"><?php echo __("View Documentation", "quiz-maker-failed-questions"); ?></a>
         </div>
     </div>
     

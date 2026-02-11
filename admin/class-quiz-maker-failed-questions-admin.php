@@ -145,4 +145,128 @@ class Quiz_Maker_Failed_Questions_Admin {
             include QUIZ_MAKER_FQ_DIR . 'admin/partials/failed-questions-quiz-tab.php';
         }
     }
+
+    /**
+     * AJAX handler for getting user's failed questions details
+     */
+    public function get_user_failed_questions_details() {
+        check_ajax_referer('quiz_maker_fq_user_details', 'security');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Permission denied');
+        }
+        
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        $quiz_id = isset($_POST['quiz_id']) ? intval($_POST['quiz_id']) : 0;
+        
+        if (!$user_id || !$quiz_id) {
+            wp_send_json_error('Invalid parameters');
+        }
+        
+        global $wpdb;
+        $table_failed_questions = $wpdb->prefix . 'aysquiz_failed_questions';
+        $table_questions = $wpdb->prefix . 'aysquiz_questions';
+        
+        // Get user details
+        $user = get_userdata($user_id);
+        if (!$user) {
+            wp_send_json_error('User not found');
+        }
+        
+        // Get user's failed questions
+        $questions = $wpdb->get_results($wpdb->prepare(
+            "SELECT fq.*, q.question as question_text
+            FROM $table_failed_questions fq
+            JOIN $table_questions q ON fq.question_id = q.id
+            WHERE fq.user_id = %d AND fq.quiz_id = %d
+            ORDER BY fq.last_attempt DESC",
+            $user_id, $quiz_id
+        ));
+        
+        // Get user statistics
+        $stats = $wpdb->get_row($wpdb->prepare(
+            "SELECT 
+                COUNT(*) as total_questions,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_questions,
+                SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as mastered_questions,
+                MAX(last_attempt) as last_attempt,
+                MIN(created_at) as first_attempt
+            FROM $table_failed_questions
+            WHERE user_id = %d AND quiz_id = %d",
+            $user_id, $quiz_id
+        ));
+        
+        // Calculate success rate
+        $success_rate = 0;
+        if ($stats->total_questions > 0) {
+            $success_rate = round(($stats->mastered_questions / $stats->total_questions) * 100);
+        }
+        
+        // Prepare HTML output
+        $output = '<div class="ays-quiz-fq-user-detail-container">';
+        
+        // User info section
+        $output .= '<div class="ays-quiz-fq-user-info">';
+        $output .= '<h4>' . esc_html($user->display_name) . ' (' . esc_html($user->user_email) . ')</h4>';
+        $output .= '<div class="ays-quiz-fq-user-stats">';
+        $output .= '<span class="ays-quiz-fq-stat-badge blue">Total: ' . esc_html($stats->total_questions) . '</span>';
+        $output .= '<span class="ays-quiz-fq-stat-badge red">Activas: ' . esc_html($stats->active_questions) . '</span>';
+        $output .= '<span class="ays-quiz-fq-stat-badge green">Dominadas: ' . esc_html($stats->mastered_questions) . '</span>';
+        $output .= '<span class="ays-quiz-fq-stat-badge blue">Tasa de éxito: ' . esc_html($success_rate) . '%</span>';
+        $output .= '</div>';
+        
+        // Date info
+        $output .= '<p>';
+        $output .= '<strong>Primera vez: </strong>' . esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($stats->first_attempt))) . '<br>';
+        $output .= '<strong>Última vez: </strong>' . esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($stats->last_attempt)));
+        $output .= '</p>';
+        $output .= '</div>';
+        
+        // Questions list
+        $output .= '<div class="ays-quiz-fq-questions-list">';
+        $output .= '<h4>Preguntas Falladas</h4>';
+        
+        if (count($questions) > 0) {
+            $output .= '<table class="wp-list-table widefat fixed striped" style="width:100%;">';
+            $output .= '<thead><tr>';
+            $output .= '<th>Pregunta</th>';
+            $output .= '<th>Estado</th>';
+            $output .= '<th>Aciertos Consecutivos</th>';
+            $output .= '<th>Último Intento</th>';
+            $output .= '</tr></thead>';
+            $output .= '<tbody>';
+            
+            foreach ($questions as $question) {
+                $output .= '<tr>';
+                
+                // Question text
+                $q_text = wp_strip_all_tags($question->question_text);
+                $q_text = strlen($q_text) > 100 ? substr($q_text, 0, 100) . '...' : $q_text;
+                $output .= '<td>' . esc_html($q_text) . '</td>';
+                
+                // Status
+                $status_class = $question->is_active ? 'red' : 'green';
+                $status_text = $question->is_active ? 'Activa' : 'Dominada';
+                $output .= '<td><span class="ays-quiz-fq-stat-badge ' . $status_class . '">' . $status_text . '</span></td>';
+                
+                // Consecutive correct
+                $output .= '<td>' . esc_html($question->consecutive_correct) . '</td>';
+                
+                // Last attempt
+                $output .= '<td>' . esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($question->last_attempt))) . '</td>';
+                
+                $output .= '</tr>';
+            }
+            
+            $output .= '</tbody></table>';
+        } else {
+            $output .= '<p>No se encontraron preguntas falladas para este usuario.</p>';
+        }
+        
+        $output .= '</div>';
+        
+        $output .= '</div>';
+        
+        wp_send_json_success($output);
+    }
 }

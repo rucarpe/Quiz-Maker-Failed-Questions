@@ -70,26 +70,44 @@
     font-size: 13px;
 }
 
-.ays-quiz-fq-start-test {
+/* Estilo para enlaces que parecen botones */
+a.ays-quiz-fq-start-test {
     display: inline-block;
     padding: 8px 16px;
-    background-color: #4f46e5;
+    background-color: #00410A;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
+    text-decoration: none;
     transition: background-color 0.3s ease;
+    text-align: center;
 }
 
-.ays-quiz-fq-start-test:hover {
-    background-color: #4338ca;
+a.ays-quiz-fq-start-test:hover {
+    background-color: #F4CE19;
+    text-decoration: none;
+    color: white;
 }
 
 .ays-quiz-fq-start-test:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+/* Botón volver al menú */
+a.ays-quiz-fq-back-to-menu {
+    display: inline-block;
+    margin-bottom: 15px !important;
+    text-decoration: none !important;
+    color: #00410A !important;
+    font-weight: 500 !important;
+}
+
+a.ays-quiz-fq-back-to-menu:hover {
+    text-decoration: underline !important;
 }
 
 /* No questions message */
@@ -117,7 +135,7 @@
 
 .ays-quiz-fq-info-box h4 {
     margin-top: 0;
-    color: #0284c7;
+    color: #F4CE19;
     font-weight: 600;
 }
 
@@ -149,7 +167,7 @@
 
 .ays-quiz-fq-loader {
     border: 5px solid #f3f3f3;
-    border-top: 5px solid #4f46e5;
+    border-top: 5px solid #00410A;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -197,3 +215,65 @@
 .ays-quiz-fq-notification.error {
     background-color: #ef4444;
 }
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+    .ays-quiz-fq-categories-list {
+        flex-direction: column;
+    }
+    
+    .ays-quiz-fq-category-item {
+        min-width: 100%;
+    }
+}
+
+    /* Estilos para depuración */
+    .ays-quiz-fq-debug-info {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+    }
+
+    .ays-quiz-fq-debug-info h4 {
+        margin-top: 0;
+        color: #007bff;
+    }
+
+    .ays-quiz-fq-debug-info pre {
+        background-color: #f1f1f1;
+        padding: 10px;
+        border-radius: 4px;
+        max-height: 300px;
+        overflow: auto;
+        white-space: pre-wrap;
+        font-size: 12px;
+    }
+
+    .ays-quiz-fq-test-form {
+        margin-top: 15px;
+    }
+
+    .ays-quiz-fq-test-db {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .ays-quiz-fq-test-result {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    .ays-quiz-fq-test-result .success {
+        color: #28a745;
+    }
+
+    .ays-quiz-fq-test-result .error {
+        color: #dc3545;
+    }
